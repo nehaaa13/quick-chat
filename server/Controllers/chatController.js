@@ -3,21 +3,24 @@ const chatModel = require("../Models/chatModel")
 // creatChat
 
 const createChat = async (req, res) => {
-    const {firstId, secondId} = req.body
-    
+    const {firstId, secondId} = req.body;
+
+    if (!firstId || !secondId) {
+        return res.status(400).json({ error: "Both firstId and secondId are required" });
+    }
+
     try {
         const chat = await chatModel.findOne({
             members: { $all: [firstId, secondId] },
         });
-
+        
         if (chat) return res.status(200).json(chat);
         
         const newChat = new chatModel({
-            members: [firstId, secondId],
+            members: [firstId, secondId]
         })
         
         const response = await newChat.save();
-        
         res.status(200).json(response);
     }
     catch (error) {
@@ -31,8 +34,8 @@ const findUserChats = async (req, res) => {
     const userId = req.params.userId;
     
     try {
-        const chats = await chatModel.findOne({
-            members: { $in: [userId] },
+        const chats = await chatModel.find({
+            members: { $in: [userId] }
         })
         
         res.status(200).json(chats);

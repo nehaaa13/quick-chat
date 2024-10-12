@@ -10,8 +10,8 @@ require("dotenv").config()
 
 app.use(express.json())
 app.use(cors())
-app.use("/api/users", userRoute);
-app.use("/api/users/chats", chatRoute);
+app.use("/api", userRoute);
+app.use("/api/chats", chatRoute);
 app.use("/api/messages", messageRoute);
 
 app.get("/", (req,res)=>{
@@ -26,5 +26,5 @@ app.listen(port, (req, resp) => {
 })
 
 mongoose.connect(uri)
-  .then(() => console.log("MongoDB connection established"))
+.then(() => console.log("MongoDB connection established"))
   .catch((error) => console.log("MongoDB connection failed", error.message));

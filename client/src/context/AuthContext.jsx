@@ -24,14 +24,13 @@ export const AuthContextProvider = ({ children }) => {
     });
 
     // -----------------CONSOLE------------------
-    console.log("RegisterInfo", registerInfo); // To show register info
-    console.log("Userr", user); // To show the User Object after refresh also instead of the Null state
-    console.log("Login", loginInfo); // To show login info
+    // console.log("RegisterInfo", registerInfo); // To show register info
+    console.log("Userr", user?._id); // To show the User Object after refresh also instead of the Null state
+    // console.log("Login", loginInfo); // To show login info
 
     // USER INFO
     useEffect(() => {
         const user = localStorage.getItem("User");
-
         setUser(JSON.parse(user));
     }, []);
 
