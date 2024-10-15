@@ -4,31 +4,32 @@ import { ChatContext } from "../context/ChatContext";
 import UserChat from "../chats/UserChat";
 import { AuthContext } from "../context/AuthContext";
 import PotentialChats from "../chats/PotentialChats";
+import ChatBox from "../chats/ChatBox";
 
 const Chat = () => {
-    const  [user]  = useContext(AuthContext); // Access user from AuthContext
-    const { userChats, isUserChatsLoading, userChatsError } = useContext(ChatContext);
+    const [user] = useContext(AuthContext); // Access user from AuthContext
+    const { userChats, isUserChatsLoading, updateCurrentChat } = useContext(ChatContext);
 
-    // You can now use user within this component
+    //-----------------CONSOLE----------------
     // console.log("user", user);
-    
+
     return (
-        <Container>
+        <Container style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <PotentialChats />
             {userChats?.length < 1 ? null : (
-                <Stack direction="horizontal" gap={4} className="align-items-start">
+                <Stack direction="horizontal" gap={4} className="align-items-start flex-grow-1">
                     <Stack className="message-box flex-grow-0 pe-3" gap={3}> {/* flex-grow-0 for shrinking the list */}
                         {isUserChatsLoading && <p>Loading chats...</p>}
                         {userChats?.map((chat, index) => {
                             return (
-                                <div key={index}>
+                                <div key={index} onClick={() => updateCurrentChat(chat)}>
                                     {/* Pass the chat and user to UserChat */}
                                     <UserChat chat={chat} user={user} />
                                 </div>
                             );
                         })}
                     </Stack>
-                    <p>ChatBox</p>
+                    <ChatBox />
                 </Stack>
             )}
         </Container>

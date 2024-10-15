@@ -8,8 +8,20 @@ export const ChatContextProvider = ({ children, user }) => {
     const [isUserChatsLoading, setIsUserChatsLoading] = useState(false);
     const [userChatsError, setUserChatsError] = useState(null);
     const [potentialChats, setPotentialChats] = useState([]);
-    
+    const [currentChat, setCurrentChat] = useState(null);
+    const [messages, setMessages] = useState(null);
+    const [isMessagesLoading, setIsMessagesLoading] = useState(false);
+    const [messagesError, setMessagesError] = useState(null);
+    const [sendTextMessageError, setSendTextMessageError] = useState(null);
+    const [newMessage, setNewMessage] = useState(null);
 
+
+    //----------------CONSOLE--------------
+    // console.log("currentChat", currentChat);
+    // console.log("Messages", messages);
+
+
+    // -----------------getUsers----------------
     useEffect(() => {
         const getUsers = async () => {
             const response = await getRequest(`${baseUrl}/allusers`);
@@ -42,6 +54,7 @@ export const ChatContextProvider = ({ children, user }) => {
         }
     }, [userChats]);
 
+    //-------------------getUsersChat-------------
     useEffect(() => {
         const getUserChats = async () => {
             if (user?._id) {
@@ -60,14 +73,64 @@ export const ChatContextProvider = ({ children, user }) => {
         getUserChats();
     }, [user]);
 
-    const createChat = useCallback(async(firstId, secondId)=>{
-        const response = await postRequest(`${baseUrl}/chats`, JSON.stringify({firstId, secondId,}));
+    //-------------------getMessages-------------
+    useEffect(() => {
+        const getMessages = async () => {
 
-        if(response.error){
+            setIsMessagesLoading(true);
+            setMessagesError(null);
+
+            const response = await getRequest(`${baseUrl}/messages/${currentChat?._id}`);
+            setIsMessagesLoading(false);
+
+            if (response.error) {
+                return setMessagesError(response);
+            }
+            const formattedMessages = Array.isArray(response) ? response : [response];
+
+            setMessages(formattedMessages);
+
+        };
+        if (currentChat?._id) {  // Only call if there's a valid current chat
+            getMessages();
+        }
+    }, [currentChat]);
+
+    const sendTextMessage = useCallback(
+        async (textMessage, sender, currentChatId, setTextMessage) => {
+            if (!textMessage) return console.log("You must type something...");
+
+            const response = await postRequest(`${baseUrl}/messages`, JSON.stringify({
+                chatId: currentChatId,
+                senderId: sender._id,
+                text: textMessage,
+            }));            
+
+            if (response.error) {
+                return setSendTextMessageError(response);
+            }
+
+            setNewMessage(response);
+            
+            setMessages((prev) => [...prev, response])
+            setTextMessage("");
+            console.log("new message", newMessage);
+
+        }, []);
+
+    // -----------------updateCurrentChat--------------
+    const updateCurrentChat = useCallback((chatId) => {
+        setCurrentChat(chatId);
+    }, []);
+
+    const createChat = useCallback(async (firstId, secondId) => {
+        const response = await postRequest(`${baseUrl}/chats`, JSON.stringify({ firstId, secondId, }));
+
+        if (response.error) {
             return console.log("Error in creating chats", response);
         }
-        setUserChats((prev)=>[...prev, response]);
-    },[])
+        setUserChats((prev) => [...prev, response]);
+    }, [])
 
     return (
         <ChatContext.Provider
@@ -77,6 +140,13 @@ export const ChatContextProvider = ({ children, user }) => {
                 userChatsError,
                 potentialChats,
                 createChat,
+                updateCurrentChat,
+                messages,
+                currentChat,
+                isMessagesLoading,
+                messagesError,
+                sendTextMessage,
+
             }}
         >
             {children}
