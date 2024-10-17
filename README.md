@@ -4,7 +4,7 @@
 across devices.
 <br/>
 • Integrated **Cloud MongoDB** for chats, messages and user data storage, using the MERN stack to
-build backend with Node.js and Express.js.
+build backend with **Node.js** and **Express.js.**
 <br/>
 • Implemented **WebSocket** for **Real-time** communication between users, enabling
 instant message delivery.
