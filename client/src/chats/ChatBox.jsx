@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { ChatContext } from "../context/ChatContext";
 import { useFetchRecipientUser } from "../hooks/userFetchRecipient";
@@ -12,6 +12,7 @@ const ChatBox = () => {
     const { currentChat, messages, isMessagesLoading, sendTextMessage } = useContext(ChatContext);
     const { recipientUser } = useFetchRecipientUser(currentChat, user);
     const [textMessage, setTextMessage] = useState("");
+    const scroll = useRef();
 
     // console.log("User", user);
     // console.log("currentChat", currentChat);
@@ -19,6 +20,10 @@ const ChatBox = () => {
     // console.log("message", messages);
     // console.log("Text", textMessage);
     // console.log("current", currentChat?._id);
+
+    useEffect(()=>{
+        scroll.current?.scrollIntoView({behavior: "smooth"});
+    }, [messages]);
 
 
     if (!recipientUser)
@@ -39,7 +44,9 @@ const ChatBox = () => {
             <Stack gap={3} className="messages">
                 {messages && messages.map((message, index) => {
                     return (
-                        <Stack key={index} className={`${message?.senderId === user._id ? "message self align-self-end flex-grow-0" : "message align-self-start flex-grow-0"} `}>
+                        <Stack key={index} 
+                        className={`${message?.senderId === user._id ? "message self align-self-end flex-grow-0" : "message align-self-start flex-grow-0"} `} 
+                        ref={scroll}>
                             <span>{message.text}</span>
                             <span className="message-footer">{moment(message.createdAt).calendar()}</span>
                         </Stack>

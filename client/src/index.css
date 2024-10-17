@@ -60,6 +60,7 @@ body{
   max-height: calc(100vh - 10rem);
   overflow-y: auto;
   background: rgb(25, 25, 25);
+  /* background: white; */
   border-radius: 10px;
 }
 
