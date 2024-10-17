@@ -16,18 +16,25 @@ export const useFetchRecipientUser = (chat, user) => {
 
     useEffect(() => {
         const getUser = async () => {
-            if (!recipientId) return null;
+            if (!recipientId) return;
 
-            const response = await getRequest(`${baseUrl}/find/${recipientId}`);
+            try {
+                const response = await getRequest(`${baseUrl}/find/${recipientId}`);
 
-            if (response.error) {
-                return setError(error);
+                // Check if the response contains an error or is null
+                if (!response || response.error) {
+                    setError(response?.error || "Failed to fetch recipient user");
+                    return;
+                }
+
+                setRecipientUser(response); // The response is the recipient user data
+            } catch (err) {
+                setError("An unexpected error occurred");
             }
-
-            setRecipientUser(response);
         };
+
         getUser();
     }, [recipientId]);
 
-    return { recipientUser };
+    return { recipientUser, error };
 }
