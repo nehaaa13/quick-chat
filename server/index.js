@@ -1,8 +1,7 @@
 const cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
-
-const {Server} = require("socket.io");
+const { Server } = require("socket.io");
 
 const chatRoute = require("./Routes/chatRoute");
 const userRoute = require("./Routes/userRoute");
@@ -12,7 +11,22 @@ const app = express();
 require("dotenv").config();
 
 app.use(express.json());
-app.use(cors());
+
+// CORS Configuration
+const corsOptions = {
+    origin: function (origin, callback) {
+        const allowedOrigins = process.env.CLIENT_URL.split(',');
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST'],
+    credentials: true // Allow credentials if you are sending them
+};
+
+app.use(cors(corsOptions));
 app.use("/api", userRoute);
 app.use("/api/chats", chatRoute);
 app.use("/api/messages", messageRoute);
@@ -30,10 +44,13 @@ const expressServer = app.listen(port, () => {
 
 mongoose.connect(uri)
     .then(() => console.log("MongoDB connection established"))
-    .catch((error) => console.log("MongoDB connection failed", error.message));
+    .catch((error) => {
+        console.log("MongoDB connection failed", error.message);
+        process.exit(1);
+    });
 
 const io = new Server(expressServer, { 
-    cors: { origin: process.env.CLIENT_URL } 
+    cors: corsOptions // Use the same corsOptions here
 });
 
 let onlineUsers = [];

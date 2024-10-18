@@ -1,6 +1,6 @@
 import { createContext, useCallback, useEffect, useState } from "react";
 import { baseUrl, getRequest, postRequest } from "../utils/services";
-import { io } from "socket.io-client";
+import io from "socket.io-client";
 
 export const ChatContext = createContext();
 
