@@ -143,7 +143,7 @@ export const ChatContextProvider = ({ children, user }) => {
             }
         };
         getUserChats();
-    }, [user]);
+    }, [user, notifications]);
 
     //-------------------getMessages-------------
     // getMessages useEffect
@@ -210,6 +210,53 @@ export const ChatContextProvider = ({ children, user }) => {
         setNotifications(mNotifications);
     },[]);
 
+
+    // To open chat from notification
+
+    const markNotificationAsRead = useCallback((n, userChats, user, notifications)=>{
+        // find chat to open 
+
+        const desireChat = userChats.find(chat =>{
+            const chatMembers = [user._id, n.senderId]
+            const isDesiredChat = chat?.members.every((member)=>{
+                return chatMembers.includes(member);
+            });
+            return isDesiredChat;
+        });
+
+        // Mark Notification as Read
+
+        const mNotifications = notifications.map(el=>{
+            if(n.senderId === el.senderId){
+                return {...n, isRead:true};
+            }else{
+                return el;
+            }
+        });
+
+        updateCurrentChat(desireChat);
+        setNotifications(mNotifications);
+    },[]);
+
+    const markThisUserNotificationsAsRead = useCallback(()=>{
+        // Mark notifications as Read
+
+        const mNotifications = notifications.map(el=>{
+            let notification;
+
+            markThisUserNotificationsAsRead.forEach(n=>{
+                if(n.senderId === el.senderId){
+                    notification = {...n, isRead: true}
+                }else{
+                    notification = el;
+                }
+            });
+            return notification;
+        });
+        setNotifications(mNotifications);
+
+    },[]);
+
     return (
         <ChatContext.Provider
             value={{
@@ -227,7 +274,9 @@ export const ChatContextProvider = ({ children, user }) => {
                 onlineUsers,
                 notifications,
                 allUsers,
-                markAllNotificationsAsRead
+                markAllNotificationsAsRead,
+                markNotificationAsRead,
+                markThisUserNotificationsAsRead,
             }}
         >
             {children}
